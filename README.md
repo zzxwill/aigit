@@ -1,11 +1,66 @@
 # aigit
-AI Git Commit Assistant is a command-line tool that streamlines the git commit process by automatically generating meaningful and standardized commit messages. 
+
+The most powerful git commit assistant.
+
+It's a command-line tool that streamlines the git commit process by automatically generating meaningful and standardized commit messages, including title and body.
+
+# Getting Started
+
+## Download the binary
+
+## Generate commit message
+
+```shell
+$ aigit commit
+
+🤖 Generating commit message...
+
+📝 Generated commit message:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+feat(llm): add support for volcengine-go-sdk
+
+This commit adds support for the volcengine-go-sdk for integrating with Doubao LLM service.
+
+The following changes were made:
+
+- Provider type and APIKey field were added to the llm.Config struct.
+- generateDoubaoCommitMessage function was updated to use the volcengine-go-sdk.
+- The client is initialized with the apiKey and endpointId.
+- A prompt is constructed and sent to the CreateChatCompletion API.
+- The first choice's message is returned as the commit message.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🤔 What would you like to do?
+1. Commit this message (default)
+2. Regenerate message
+
+Enter your choice (press Enter for default):
+
+✅ Successfully committed changes!
+```
+
+## Generate commit message with your own AI API Key
+
+```shell
+$ aigit auth add gemini AIzaSyCb56bjWn02e2v4s_TxHMDnHbSJQSx_tu8
+Successfully added API key for gemini
+
+$ aigit auth add doubao 6e3e438c-a380-4ed5-b597-e01cb82bc4df ep-20250110202503-fdkgq
+Successfully added API key for doubao
+
+$ aigit auth ls
+Configured providers:
+  gemini *default
+  doubao
+
+
 
 # Usage
 
 - gemini
 
 ```
+
 export GEMINI_API_KEY=AIzaSyCb56xxxxx
 
 ✗ go run main.go commit
@@ -15,6 +70,5 @@ This commit introduces the integration of the Gemini API to generate
 commit messages based on the provided diff. The code now uses a
 prompt to send a diff to the Gemini API, gets the output, and prints
 the generated commit message.%
-
 
 ```

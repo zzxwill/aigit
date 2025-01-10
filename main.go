@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/base64"
 	"fmt"
 	"os"
 	"os/exec"
@@ -10,8 +11,6 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/zzxwill/aigit/llm"
 )
-
-var apiKey string
 
 func main() {
 	var rootCmd = &cobra.Command{
@@ -54,20 +53,10 @@ func main() {
 		Use:                   "add [provider] [api_key]",
 		Short:                 "Add or update API key for a provider",
 		Long:                  "Add or update API key for a provider. Supported providers: openai, gemini, doubao",
-		Args:                  cobra.ExactArgs(2),
 		DisableFlagsInUseLine: true,
 		Run: func(cmd *cobra.Command, args []string) {
 			provider := strings.ToLower(args[0])
-			apiKey = args[1]
-
-			// Validate provider
-			switch provider {
-			case llm.ProviderOpenAI, llm.ProviderGemini, llm.ProviderDoubao:
-				// Valid provider
-			default:
-				fmt.Printf("Unsupported provider: %s\nSupported providers are: openai, gemini, doubao\n", provider)
-				os.Exit(1)
-			}
+			apiKey := args[1]
 
 			config := llm.NewConfig()
 			if err := config.Load(); err != nil {
@@ -75,8 +64,25 @@ func main() {
 				os.Exit(1)
 			}
 
-			if err := config.AddProvider(provider, apiKey); err != nil {
-				fmt.Printf("Error saving config: %v\n", err)
+			// Validate provider
+			switch provider {
+			case llm.ProviderOpenAI, llm.ProviderGemini:
+				if err := config.AddProvider(provider, apiKey); err != nil {
+					fmt.Printf("Error saving config: %v\n", err)
+					os.Exit(1)
+				}
+			case llm.ProviderDoubao:
+				if len(args) < 3 {
+					color.Red("Endpoint ID is required for Doubao provider")
+					color.Red("Please run `aigit auth add doubao <api_key> <endpoint_id>`")
+					os.Exit(1)
+				}
+				if err := config.AddProvider(provider, apiKey, args[2]); err != nil {
+					fmt.Printf("Error saving config: %v\n", err)
+					os.Exit(1)
+				}
+			default:
+				fmt.Printf("Unsupported provider: %s\nSupported providers are: openai, gemini, doubao\n", provider)
 				os.Exit(1)
 			}
 
@@ -135,14 +141,44 @@ func main() {
 				os.Exit(1)
 			}
 
-			apiKey = config.Providers[config.CurrentProvider]
+			apiKey := config.Providers[config.CurrentProvider].APIKey
 
 			// First message generation
 			fmt.Println("\n🤖 Generating commit message...")
-			commitMessage, err := llm.GenerateGeminiCommitMessage(string(diffOutput), apiKey)
-			if err != nil {
-				fmt.Printf("Error generating commit message: %v\n", err)
-				os.Exit(1)
+			var commitMessage string
+			switch config.CurrentProvider {
+			case llm.ProviderGemini:
+				commitMessage, err = llm.GenerateGeminiCommitMessage(string(diffOutput), apiKey)
+				if err != nil {
+					fmt.Printf("Error generating commit message: %v\n", err)
+					os.Exit(1)
+				}
+			case llm.ProviderDoubao:
+				endpoint := config.Providers[config.CurrentProvider].Endpoint
+				commitMessage, err = llm.GenerateDoubaoCommitMessage(string(diffOutput), apiKey, endpoint)
+				if err != nil {
+					fmt.Printf("Error generating commit message: %v\n", err)
+					os.Exit(1)
+				}
+			default:
+				apiKey, err := base64.StdEncoding.DecodeString(llm.DefaultApiKey)
+				if err != nil {
+					fmt.Printf("Error decoding API key: %v\n", err)
+					os.Exit(1)
+				}
+
+				endpoint, err := base64.StdEncoding.DecodeString(llm.DefaultEndpoint)
+				if err != nil {
+					fmt.Printf("Error decoding endpoint: %v\n", err)
+					os.Exit(1)
+				}
+
+				commitMessage, err = llm.GenerateDoubaoCommitMessage(string(diffOutput), string(apiKey), string(endpoint))
+				if err != nil {
+					fmt.Printf("Error generating commit message: %v\n", err)
+					os.Exit(1)
+				}
+
 			}
 
 			for {

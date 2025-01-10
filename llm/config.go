@@ -7,14 +7,19 @@ import (
 	"path/filepath"
 )
 
+type Provider struct {
+	APIKey   string `json:"api_key"`
+	Endpoint string `json:"endpoint"`
+}
+
 type Config struct {
-	CurrentProvider string            `json:"current_provider"`
-	Providers       map[string]string `json:"providers"`
+	CurrentProvider string              `json:"current_provider"`
+	Providers       map[string]Provider `json:"providers"`
 }
 
 func NewConfig() *Config {
 	return &Config{
-		Providers: make(map[string]string),
+		Providers: make(map[string]Provider),
 	}
 }
 
@@ -64,8 +69,18 @@ func (c *Config) Save() error {
 	return nil
 }
 
-func (c *Config) AddProvider(provider, apiKey string) error {
-	c.Providers[provider] = apiKey
+func (c *Config) AddProvider(provider, apiKey string, endpoint ...string) error {
+	switch provider {
+	case ProviderDoubao:
+		c.Providers[provider] = Provider{
+			APIKey:   apiKey,
+			Endpoint: endpoint[0],
+		}
+	default:
+		c.Providers[provider] = Provider{
+			APIKey: apiKey,
+		}
+	}
 	if c.CurrentProvider == "" {
 		c.CurrentProvider = provider
 	}
@@ -81,19 +96,19 @@ func (c *Config) UseProvider(provider string) error {
 }
 
 func (c *Config) GetAPIKey(provider string) (string, error) {
-	if apiKey, exists := c.Providers[provider]; exists {
-		return apiKey, nil
+	if p, exists := c.Providers[provider]; exists {
+		return p.APIKey, nil
 	}
 	return "", fmt.Errorf("no API key found for provider %s", provider)
 }
 
 func (c *Config) ListProviders() []string {
 	providers := make([]string, 0, len(c.Providers))
-	for provider := range c.Providers {
-		if provider == c.CurrentProvider {
-			providers = append(providers, provider+" *default")
+	for k, _ := range c.Providers {
+		if k == c.CurrentProvider {
+			providers = append(providers, k+" *default")
 		} else {
-			providers = append(providers, provider)
+			providers = append(providers, k)
 		}
 	}
 	return providers
