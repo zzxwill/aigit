@@ -1,14 +1,19 @@
 # aigit
 
-The most powerful git commit assistant.
+The most powerful git commit assistant ever!
 
 It's a command-line tool that streamlines the git commit process by automatically generating meaningful and standardized commit messages, including title and body.
 
-# Getting Started
+`aigit commit` is as simple as `git commit`.
 
-## Download the binary
+## Getting Started
 
-## Generate commit message
+### Download the binary
+
+```shell
+$ wget https://github.com/zzxwill/aigit/releases/download/v0.0.1/aigit && chmod +x aigit && sudo mv aigit /usr/local/bin/aigit
+
+### Generate commit message
 
 ```shell
 $ aigit commit
@@ -39,7 +44,7 @@ Enter your choice (press Enter for default):
 ✅ Successfully committed changes!
 ```
 
-## Generate commit message with your own AI API Key
+### Generate commit message with your own AI API Key
 
 ```shell
 $ aigit auth add gemini AIzaSyCb56bjWn02e2v4s_TxHMDnHbSJQSx_tu8
@@ -53,22 +58,54 @@ Configured providers:
   gemini *default
   doubao
 
+$ aigit commit
+
+🤖 Generating commit message...
+
+📝 Generated commit message:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+feat(llm): add support for volcengine-go-sdk
+
+This commit adds support for the volcengine-go-sdk for integrating with Doubao LLM service.
+
+The following changes were made:
+
+- Provider type and APIKey field were added to the llm.Config struct.
+- generateDoubaoCommitMessage function was updated to use the volcengine-go-sdk.
+- The client is initialized with the apiKey and endpointId.
+- A prompt is constructed and sent to the CreateChatCompletion API.
+- The first choice's message is returned as the commit message.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🤔 What would you like to do?
+1. Commit this message (default)
+2. Regenerate message
+
+Enter your choice (press Enter for default): 2
+
+🤖 Regenerating commit message...
+
+📝 Generated commit message:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+feat(llm): add support for volcengine-go-sdk
+
+This commit adds support for the volcengine-go-sdk for integrating with Doubao LLM service.
+
+The following changes were made:
+
+- Provider type and APIKey field were added to the llm.Config struct.
+- generateDoubaoCommitMessage function was updated to use the volcengine-go-sdk.
+- The client is initialized with the apiKey and endpointId.
+- A prompt is constructed and sent to the CreateChatCompletion API.
+- The first choice's message is returned as the commit message.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🤔 What would you like to do?
+1. Commit this message (default)
+2. Regenerate message
+
+Enter your choice (press Enter for default): 1
+
+✅ Successfully committed changes!
 
 
-# Usage
-
-- gemini
-
-```
-
-export GEMINI_API_KEY=AIzaSyCb56xxxxx
-
-✗ go run main.go commit
-feat: Add Gemini API integration for commit message generation
-
-This commit introduces the integration of the Gemini API to generate
-commit messages based on the provided diff. The code now uses a
-prompt to send a diff to the Gemini API, gets the output, and prints
-the generated commit message.%
-
-```
