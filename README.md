@@ -10,8 +10,13 @@ It's a command-line tool that streamlines the git commit process by automaticall
 
 ### Download the binary
 
+- Go to the [releases page](https://github.com/zzxwill/aigit/releases) and download the binary for your platform.
+
+- Rename the binary to `aigit` and move it to `/usr/local/bin/aigit`.
+
 ```shell
-$ wget https://github.com/zzxwill/aigit/releases/download/v0.0.1/aigit && chmod +x aigit && sudo mv aigit /usr/local/bin/aigit
+$ chmod +x aigit && sudo mv aigit /usr/local/bin/aigit
+```
 
 ### Generate commit message
 
