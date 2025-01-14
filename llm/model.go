@@ -22,8 +22,8 @@ const (
 )
 
 const (
-	DefaultApiKey   = "NmUzZTQzOGMtYTM4MC00ZWQ1LWI1OTctZTAxY2I4MmJjNGRm"
-	DefaultEndpoint = "ZXAtMjAyNTAxMTAyMDI1MDMtZmRrZ3E="
+	DefaultApiKey   = "YzAzZDIyN2ItMWFkNS00MDNkLWJkM2YtZjgzNzczOWE4YzFj"
+	DefaultEndpoint = "ZXAtMjAyNTAxMTMyMzE5NTEtOTJ4bjI="
 )
 
 const llmPrompt = `Generate a concise and informative Git commit message based on the following code diff.
@@ -81,7 +81,7 @@ func GenerateDoubaoCommitMessage(diff, apiKey string, endpointId string) (string
 			{
 				Role: model.ChatMessageRoleSystem,
 				Content: &model.ChatCompletionMessageContent{
-					StringValue: volcengine.String("你是豆包，是由字节跳动开发的 AI 人工智能助手"),
+					StringValue: volcengine.String("你是豆包，是由字节跳动开发的 AI 人工智能助手, 你非常擅长生成 git commit message"),
 				},
 			},
 			{
