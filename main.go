@@ -52,9 +52,16 @@ func main() {
 	var authAddCmd = &cobra.Command{
 		Use:                   "add [provider] [api_key]",
 		Short:                 "Add or update API key for a provider",
-		Long:                  "Add or update API key for a provider. Supported providers: openai, gemini, doubao",
+		Long:                  "Add or update API key for a provider. Supported providers: openai, gemini, doubao, deepseek",
 		DisableFlagsInUseLine: true,
 		Run: func(cmd *cobra.Command, args []string) {
+			if len(args) < 2 {
+				color.Red("Not enough arguments")
+				color.Red(cmd.Long)
+				color.Red("\nUsage: aigit auth add <provider> <api_key> [endpoint_id]")
+				os.Exit(1)
+			}
+
 			provider := strings.ToLower(args[0])
 			apiKey := args[1]
 
@@ -66,7 +73,7 @@ func main() {
 
 			// Validate provider
 			switch provider {
-			case llm.ProviderOpenAI, llm.ProviderGemini:
+			case llm.ProviderOpenAI, llm.ProviderGemini, llm.ProviderDeepseek:
 				if err := config.AddProvider(provider, apiKey); err != nil {
 					fmt.Printf("Error saving config: %v\n", err)
 					os.Exit(1)
@@ -82,7 +89,7 @@ func main() {
 					os.Exit(1)
 				}
 			default:
-				fmt.Printf("Unsupported provider: %s\nSupported providers are: openai, gemini, doubao\n", provider)
+				fmt.Printf("Unsupported provider: %s\nSupported providers are: openai, gemini, doubao, deepseek\n", provider)
 				os.Exit(1)
 			}
 
