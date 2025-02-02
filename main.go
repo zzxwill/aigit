@@ -148,44 +148,13 @@ func main() {
 				os.Exit(1)
 			}
 
-			apiKey := config.Providers[config.CurrentProvider].APIKey
-
 			// First message generation
 			fmt.Println("\n🤖 Generating commit message...")
 			var commitMessage string
-			switch config.CurrentProvider {
-			case llm.ProviderGemini:
-				commitMessage, err = llm.GenerateGeminiCommitMessage(string(diffOutput), apiKey)
-				if err != nil {
-					fmt.Printf("Error generating commit message: %v\n", err)
-					os.Exit(1)
-				}
-			case llm.ProviderDoubao:
-				endpoint := config.Providers[config.CurrentProvider].Endpoint
-				commitMessage, err = llm.GenerateDoubaoCommitMessage(string(diffOutput), apiKey, endpoint)
-				if err != nil {
-					fmt.Printf("Error generating commit message: %v\n", err)
-					os.Exit(1)
-				}
-			default:
-				apiKey, err := base64.StdEncoding.DecodeString(llm.DefaultApiKey)
-				if err != nil {
-					fmt.Printf("Error decoding API key: %v\n", err)
-					os.Exit(1)
-				}
-
-				endpoint, err := base64.StdEncoding.DecodeString(llm.DefaultEndpoint)
-				if err != nil {
-					fmt.Printf("Error decoding endpoint: %v\n", err)
-					os.Exit(1)
-				}
-
-				commitMessage, err = llm.GenerateDoubaoCommitMessage(string(diffOutput), string(apiKey), string(endpoint))
-				if err != nil {
-					fmt.Printf("Error generating commit message: %v\n", err)
-					os.Exit(1)
-				}
-
+			commitMessage, err = generateMessage(config, diffOutput)
+			if err != nil {
+				fmt.Printf("Error generating commit message: %v\n", err)
+				os.Exit(1)
 			}
 
 			for {
@@ -218,7 +187,7 @@ func main() {
 					return
 				case "2":
 					fmt.Println("\n🤖 Regenerating commit message...")
-					commitMessage, err = llm.GenerateGeminiCommitMessage(string(diffOutput), apiKey)
+					commitMessage, err = generateMessage(config, diffOutput)
 					if err != nil {
 						fmt.Printf("Error generating commit message: %v\n", err)
 						os.Exit(1)
@@ -237,4 +206,33 @@ func main() {
 		fmt.Println(err)
 		os.Exit(1)
 	}
+}
+
+// Add this helper function before the main function
+func generateMessage(config *llm.Config, diffOutput []byte) (string, error) {
+	var commitMessage string
+	var err error
+
+	apiKey := config.Providers[config.CurrentProvider].APIKey
+
+	switch config.CurrentProvider {
+	case llm.ProviderGemini:
+		commitMessage, err = llm.GenerateGeminiCommitMessage(string(diffOutput), apiKey)
+	case llm.ProviderDoubao:
+		endpoint := config.Providers[config.CurrentProvider].Endpoint
+		commitMessage, err = llm.GenerateDoubaoCommitMessage(string(diffOutput), apiKey, endpoint)
+	case llm.ProviderOpenAI:
+		commitMessage, err = llm.GenerateOpenAICommitMessage(string(diffOutput), apiKey)
+	default:
+		apiKey, err1 := base64.StdEncoding.DecodeString(llm.DefaultApiKey)
+		if err1 != nil {
+			return "", fmt.Errorf("error decoding API key: %v", err1)
+		}
+		endpoint, err1 := base64.StdEncoding.DecodeString(llm.DefaultEndpoint)
+		if err1 != nil {
+			return "", fmt.Errorf("error decoding endpoint: %v", err1)
+		}
+		commitMessage, err = llm.GenerateDoubaoCommitMessage(string(diffOutput), string(apiKey), string(endpoint))
+	}
+	return commitMessage, err
 }
