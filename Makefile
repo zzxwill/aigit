@@ -1,5 +1,5 @@
 BINARY_NAME=aigit
-VERSION=0.0.2
+VERSION ?= 0.0.2
 
 # Build directories
 BUILD_DIR=build
