@@ -1,5 +1,8 @@
 name-template: 'v$RESOLVED_VERSION'
 tag-template: 'v$RESOLVED_VERSION'
+# This controls draft status
+draft: false  # Default, creates a draft release
+# draft: false  # Would publish the release immediately
 categories:
   - title: '🚀 Features'
     labels:
