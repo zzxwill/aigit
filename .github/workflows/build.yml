@@ -4,8 +4,6 @@ on:
   push:
     tags:
       - 'v*'
-  pull_request:
-    branches: [ main ]
 
 jobs:
   build:
@@ -20,68 +18,145 @@ jobs:
             arch: arm64
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Set up Go
-      uses: actions/setup-go@v4
-      with:
-        go-version: '1.23'
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.23'
 
-    - name: Build Binary
-      env:
-        GOOS: ${{ matrix.os }}
-        GOARCH: ${{ matrix.arch }}
-      run: |
-        BINARY_NAME=aigit_${{ matrix.os }}_${{ matrix.arch }}
-        if [ "${{ matrix.os }}" == "windows" ]; then
-          BINARY_NAME+=".exe"
-        fi
-        go build -ldflags="-s -w" -o $BINARY_NAME main.go
+      - name: Build Binary
+        env:
+          GOOS: ${{ matrix.os }}
+          GOARCH: ${{ matrix.arch }}
+        run: |
+          BINARY_NAME=aigit_${{ matrix.os }}_${{ matrix.arch }}
+          if [ "${{ matrix.os }}" == "windows" ]; then
+            BINARY_NAME+=".exe"
+          fi
+          go build -ldflags="-s -w" -o $BINARY_NAME main.go
 
-    - name: Upload Artifact
-      uses: actions/upload-artifact@v3
-      with:
-        name: aigit-${{ matrix.os }}-${{ matrix.arch }}
-        path: aigit*
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: aigit-${{ matrix.os }}-${{ matrix.arch }}
+          path: aigit*
+          compression-level: 0
 
   release:
     needs: build
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/v')
-    
+
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Download Artifacts
-      uses: actions/download-artifact@v3
+      - name: Download Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
 
-    - name: Create Release
-      uses: softprops/action-gh-release@v1
-      with:
-        files: |
-          aigit-darwin-amd64/aigit_darwin_amd64
-          aigit-darwin-arm64/aigit_darwin_arm64
-          aigit-windows-amd64/aigit_windows_amd64.exe
-        draft: false
-        prerelease: false
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Generate Release Notes
+        id: release_notes
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            try {
+              const { repo, owner } = context.repo;
+              let baseCommit = context.sha;
+            
+              // Try to get the latest release
+              try {
+                const latestRelease = await github.rest.repos.getLatestRelease({
+                  owner,
+                  repo
+                });
+                baseCommit = latestRelease.data.target_commitish;
+              } catch (error) {
+                console.log('No previous release found, using first commit');
+                // If no release, get the first commit of the repository
+                const firstCommit = await github.rest.repos.listCommits({
+                  owner,
+                  repo,
+                  per_page: 1,
+                  page: 1
+                });
+                baseCommit = firstCommit.data[0].sha;
+              }
+            
+              const compareCommits = await github.rest.repos.compareCommits({
+                owner,
+                repo,
+                base: baseCommit,
+                head: context.sha
+              });
+            
+              let releaseBody = '## Changes\n\n';
+            
+              // Add merged PRs
+              const mergedPRs = compareCommits.data.commits
+                .filter(commit => 
+                  commit.commit.message.includes('Merge pull request') || 
+                  commit.commit.message.includes('Merge branch')
+                )
+                .map(commit => {
+                  const prMatch = commit.commit.message.match(/#(\d+)/);
+                  return prMatch ? prMatch[1] : null;
+                })
+                .filter(Boolean);
+            
+              if (mergedPRs.length > 0) {
+                releaseBody += '### Merged Pull Requests\n';
+                for (const prNumber of mergedPRs) {
+                  releaseBody += `- Closes #${prNumber}\n`;
+                }
+                releaseBody += '\n';
+              }
+            
+              // Add commit messages
+              const commitMessages = compareCommits.data.commits
+                .filter(commit => !commit.commit.message.includes('Merge'))
+                .map(commit => commit.commit.message.split('\n')[0]);
+            
+              if (commitMessages.length > 0) {
+                releaseBody += '### Commit Messages\n';
+                for (const message of commitMessages) {
+                  releaseBody += `- ${message}\n`;
+                }
+                releaseBody += '\n';
+              }
+            
+              // Add contributors
+              const contributors = new Set(
+                compareCommits.data.commits
+                  .map(commit => commit.author?.login)
+                  .filter(Boolean)
+              );
+            
+              if (contributors.size > 0) {
+                releaseBody += '### Contributors\n';
+                for (const contributor of contributors) {
+                  releaseBody += `- @${contributor}\n`;
+                }
+              }
+            
+              return releaseBody;
+            } catch (error) {
+              console.error('Error generating release notes:', error);
+              return '## Changes\n\nRelease notes could not be generated automatically.';
+            }
 
-  lint:
-    name: Lint
-    runs-on: ubuntu-latest
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
-
-    - name: Set up Go
-      uses: actions/setup-go@v4
-      with:
-        go-version: '1.23'
-
-    - name: Run golangci-lint
-      uses: golangci/golangci-lint-action@v3
-      with:
-        version: latest 
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          body: ${{ steps.release_notes.outputs.result }}
+          files: |
+            artifacts/aigit_darwin_amd64
+            artifacts/aigit_darwin_arm64
+            artifacts/aigit_windows_amd64.exe
+          draft: false
+          prerelease: false
