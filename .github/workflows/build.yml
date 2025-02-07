@@ -58,105 +58,13 @@ jobs:
         with:
           path: artifacts
           merge-multiple: true
-
-      - name: Generate Release Notes
-        id: release_notes
-        uses: actions/github-script@v7
+          
+      - name: Draft Release
+        uses: release-drafter/release-drafter@v5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            try {
-              const { repo, owner } = context.repo;
-              let baseCommit = context.sha;
-            
-              // Try to get the latest release
-              try {
-                const latestRelease = await github.rest.repos.getLatestRelease({
-                  owner,
-                  repo
-                });
-                baseCommit = latestRelease.data.target_commitish;
-              } catch (error) {
-                console.log('No previous release found, using first commit');
-                // If no release, get the first commit of the repository
-                const firstCommit = await github.rest.repos.listCommits({
-                  owner,
-                  repo,
-                  per_page: 1,
-                  page: 1
-                });
-                baseCommit = firstCommit.data[0].sha;
-              }
-            
-              const compareCommits = await github.rest.repos.compareCommits({
-                owner,
-                repo,
-                base: baseCommit,
-                head: context.sha
-              });
-            
-              let releaseBody = '## Changes\n\n';
-            
-              // Add merged PRs
-              const mergedPRs = compareCommits.data.commits
-                .filter(commit => 
-                  commit.commit.message.includes('Merge pull request') || 
-                  commit.commit.message.includes('Merge branch')
-                )
-                .map(commit => {
-                  const prMatch = commit.commit.message.match(/#(\d+)/);
-                  return prMatch ? prMatch[1] : null;
-                })
-                .filter(Boolean);
-            
-              if (mergedPRs.length > 0) {
-                releaseBody += '### Merged Pull Requests\n';
-                for (const prNumber of mergedPRs) {
-                  releaseBody += `- Closes #${prNumber}\n`;
-                }
-                releaseBody += '\n';
-              }
-            
-              // Add commit messages
-              const commitMessages = compareCommits.data.commits
-                .filter(commit => !commit.commit.message.includes('Merge'))
-                .map(commit => commit.commit.message.split('\n')[0]);
-            
-              if (commitMessages.length > 0) {
-                releaseBody += '### Commit Messages\n';
-                for (const message of commitMessages) {
-                  releaseBody += `- ${message}\n`;
-                }
-                releaseBody += '\n';
-              }
-            
-              // Add contributors
-              const contributors = new Set(
-                compareCommits.data.commits
-                  .map(commit => commit.author?.login)
-                  .filter(Boolean)
-              );
-            
-              if (contributors.size > 0) {
-                releaseBody += '### Contributors\n';
-                for (const contributor of contributors) {
-                  releaseBody += `- @${contributor}\n`;
-                }
-              }
-            
-              return releaseBody;
-            } catch (error) {
-              console.error('Error generating release notes:', error);
-              return '## Changes\n\nRelease notes could not be generated automatically.';
-            }
-
-      - name: Create Release
-        uses: softprops/action-gh-release@v1
-        with:
-          body: ${{ steps.release_notes.outputs.result }}
           files: |
             artifacts/aigit_darwin_amd64
             artifacts/aigit_darwin_arm64
             artifacts/aigit_windows_amd64.exe
-          draft: false
-          prerelease: false
