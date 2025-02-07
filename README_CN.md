@@ -1,33 +1,29 @@
 # aigit
 
-[中文文档 (Chinese Documentation)](README.zh.md) | English Documentation
+[English Documentation](README.md) | 中文文档
 
-The most powerful git commit assistant ever!
+最强大的 Git 提交助手！
 
-It's a command-line tool that streamlines the git commit process by automatically generating meaningful and standardized commit messages, including title and body.
-
-`aigit commit` is as simple as `git commit`.
-
-## Supported 🤖 AI Providers
+## 支持的 🤖 AI 提供商
 
 - [OpenAI](https://openai.com/)
 - [DeepSeek](https://deepseek.com/)
-- [Doubao (豆包)]([https://doubao.com/](https://www.volcengine.com/product/doubao)) - Built-in, you don't need to bring your own key
+- [Doubao (豆包)]([https://doubao.com/](https://www.volcengine.com/product/doubao)) - 内置，您不需要自己携带 API Key
 - [Gemini](https://gemini.google.com/)
 
-## Getting Started
+## 快速开始
 
-### Download the binary
+### 下载二进制文件
 
-- Go to the [releases page](https://github.com/zzxwill/aigit/releases) and download the binary for your platform.
+- 前往 [发布页面](https://github.com/zzxwill/aigit/releases) 下载适合您平台的二进制文件。
 
-- Rename the binary to `aigit` and move it to `/usr/local/bin/aigit`.
+- 将二进制文件重命名为 `aigit` 并移动到 `/usr/local/bin/aigit`。
 
 ```shell
 chmod +x aigit && sudo mv aigit /usr/local/bin/aigit
 ```
 
-### Generate commit message
+### 生成提交信息
 
 ```shell
 $ aigit commit
@@ -58,7 +54,7 @@ Enter your choice (press Enter for default):
 ✅ Successfully committed changes!
 ```
 
-### Generate commit message with your own AI API Key
+### 使用自己的 AI API Key 生成提交信息
 
 ```shell
 $ aigit auth add gemini AIzaSyCb56bjWn02e2v4s_TxHMDnHbSJQSx_tu8
