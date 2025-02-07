@@ -12,6 +12,8 @@ import (
 	"github.com/zzxwill/aigit/llm"
 )
 
+var Version = "dev"
+
 func main() {
 	var rootCmd = &cobra.Command{
 		Use:   "aigit",
