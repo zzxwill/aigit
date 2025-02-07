@@ -149,7 +149,7 @@ func main() {
 			}
 
 			// First message generation
-			fmt.Println("\n🤖 Generating commit message...")
+			fmt.Println("\n🤖 Generating commit message by", config.CurrentProvider)
 			var commitMessage string
 			commitMessage, err = generateMessage(config, diffOutput)
 			if err != nil {
