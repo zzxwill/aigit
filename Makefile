@@ -1,5 +1,5 @@
 BINARY_NAME=aigit
-VERSION ?= 0.0.2
+VERSION=$(shell git describe --tags --always --dirty)
 
 # Build directories
 BUILD_DIR=build
@@ -16,15 +16,15 @@ build-all: clean macos-amd64 macos-arm64 windows
 
 macos-amd64:
 	@mkdir -p $(BUILD_DIR)
-	GOOS=darwin GOARCH=amd64 go build -ldflags="-s -w" -o $(MACOS_AMD64) main.go
+	GOOS=darwin GOARCH=amd64 go build -ldflags="-s -w -X main.Version=$(VERSION)" -o $(MACOS_AMD64) main.go
 
 macos-arm64:
 	@mkdir -p $(BUILD_DIR)
-	GOOS=darwin GOARCH=arm64 go build -ldflags="-s -w" -o $(MACOS_ARM64) main.go
+	GOOS=darwin GOARCH=arm64 go build -ldflags="-s -w -X main.Version=$(VERSION)" -o $(MACOS_ARM64) main.go
 
 windows:
 	@mkdir -p $(BUILD_DIR)
-	GOOS=windows GOARCH=amd64 go build -ldflags="-s -w" -o $(WINDOWS_AMD64) main.go
+	GOOS=windows GOARCH=amd64 go build -ldflags="-s -w -X main.Version=$(VERSION)" -o $(WINDOWS_AMD64) main.go
 
 clean:
 	@rm -rf $(BUILD_DIR)
