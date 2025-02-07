@@ -1,6 +1,6 @@
 # aigit
 
-[中文文档 (Chinese Documentation)](README.zh.md) | English Documentation
+[中文文档 (Chinese Documentation)](./README_CN.md) | English Documentation
 
 The most powerful git commit assistant ever!
 
@@ -12,7 +12,7 @@ It's a command-line tool that streamlines the git commit process by automaticall
 
 - [OpenAI](https://openai.com/)
 - [DeepSeek](https://deepseek.com/)
-- [Doubao (豆包)]([https://doubao.com/](https://www.volcengine.com/product/doubao)) - Built-in, you don't need to bring your own key
+- [Doubao (豆包)](https://www.volcengine.com/product/doubao) - Built-in, you don't need to bring your own key
 - [Gemini](https://gemini.google.com/)
 
 ## Getting Started

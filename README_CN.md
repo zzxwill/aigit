@@ -8,7 +8,7 @@
 
 - [OpenAI](https://openai.com/)
 - [DeepSeek](https://deepseek.com/)
-- [Doubao (豆包)]([https://doubao.com/](https://www.volcengine.com/product/doubao)) - 内置，您不需要自己携带 API Key
+- [Doubao (豆包)](https://www.volcengine.com/product/doubao) - 内置，您不需要自己携带 API Key
 - [Gemini](https://gemini.google.com/)
 
 ## 快速开始
