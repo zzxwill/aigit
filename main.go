@@ -140,8 +140,29 @@ func main() {
 
 			// If there are no staged changes
 			if len(diffOutput) == 0 {
-				fmt.Println("No staged changes found. Please stage your changes using 'git add'")
-				os.Exit(1)
+				color.Yellow("No staged changes found.")
+				fmt.Print("Would you like to run 'git add .' to stage all changes? (y/N): ")
+				var choice string
+				fmt.Scanln(&choice)
+
+				if strings.ToLower(choice) == "y" || strings.ToLower(choice) == "yes" {
+					cmd := exec.Command("git", "add", ".")
+					if err := cmd.Run(); err != nil {
+						fmt.Printf("Error staging changes: %v\n", err)
+						os.Exit(1)
+					}
+					color.Green("All changes staged successfully!")
+
+					// Re-run git diff to get the newly staged changes
+					diffOutput, err = exec.Command("git", "diff", "--cached").Output()
+					if err != nil {
+						fmt.Printf("Error getting git diff: %v\n", err)
+						os.Exit(1)
+					}
+				} else {
+					color.Red("No changes staged. Please use 'git add' to stage your changes.")
+					os.Exit(1)
+				}
 			}
 
 			config := llm.NewConfig()
@@ -186,6 +207,21 @@ func main() {
 						os.Exit(1)
 					}
 					color.Green("\n✅ Successfully committed changes!")
+
+					fmt.Print("Would you like to push these changes to the remote repository? (y/N): ")
+					var pushChoice string
+					fmt.Scanln(&pushChoice)
+
+					if strings.ToLower(pushChoice) == "y" || strings.ToLower(pushChoice) == "yes" {
+						cmd := exec.Command("git", "push")
+						if err := cmd.Run(); err != nil {
+							color.Red("Error pushing changes: %v", err)
+							os.Exit(1)
+						}
+						color.Green("✅ Successfully pushed changes to remote repository!")
+					} else {
+						color.Yellow("Changes committed locally. Remember to push when ready.")
+					}
 					return
 				case "2":
 					fmt.Println("\n🤖 Regenerating commit message...")
