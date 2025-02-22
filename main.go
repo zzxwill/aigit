@@ -261,6 +261,8 @@ func generateMessage(config *llm.Config, diffOutput []byte) (string, error) {
 		commitMessage, err = llm.GenerateDoubaoCommitMessage(string(diffOutput), apiKey, endpoint)
 	case llm.ProviderOpenAI:
 		commitMessage, err = llm.GenerateOpenAICommitMessage(string(diffOutput), apiKey)
+	case llm.ProviderDeepseek:
+		commitMessage, err = llm.GenerateDeepseekCommitMessage(string(diffOutput), apiKey)
 	default:
 		apiKey, err1 := base64.StdEncoding.DecodeString(llm.DefaultApiKey)
 		if err1 != nil {

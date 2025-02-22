@@ -42,6 +42,7 @@ The commit message should follow these rules:
 3. The body should explain WHAT and WHY (not HOW)
 4. Each line should be less than 72 characters
 5. There should be a line break between the title and the body
+6. Disable markdown formatting
 
 Here's the diff:`
 
