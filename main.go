@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/fatih/color"
+	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 	"github.com/zzxwill/aigit/llm"
 )
@@ -141,11 +142,19 @@ func main() {
 			// If there are no staged changes
 			if len(diffOutput) == 0 {
 				color.Yellow("No staged changes found.")
-				fmt.Print("Would you like to run 'git add .' to stage all changes? (y/N): ")
-				var choice string
-				fmt.Scanln(&choice)
+				stagePrompt := promptui.Select{
+					Label: "Would you like to run 'git add .' to stage all changes?",
+					Items: []string{"Yes", "No"},
+					Size:  2,
+				}
 
-				if strings.ToLower(choice) == "y" || strings.ToLower(choice) == "yes" {
+				_, stageChoice, err := stagePrompt.Run()
+				if err != nil {
+					fmt.Printf("Error with prompt: %v\n", err)
+					os.Exit(1)
+				}
+
+				if stageChoice == "Yes" {
 					cmd := exec.Command("git", "add", ".")
 					if err := cmd.Run(); err != nil {
 						fmt.Printf("Error staging changes: %v\n", err)
@@ -188,19 +197,20 @@ func main() {
 				fmt.Println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
 
 				fmt.Println("\n🤔 What would you like to do?")
-				color.Blue("1. Commit this message (default)")
-				color.Blue("2. Regenerate message")
-				fmt.Print("\nEnter your choice (press Enter for default): ")
-
-				var choice string
-				fmt.Scanln(&choice)
-
-				if choice == "" {
-					choice = "1"
+				prompt := promptui.Select{
+					Label: "Choose an action",
+					Items: []string{"Commit this message", "Regenerate message"},
+					Size:  2,
 				}
 
-				switch choice {
-				case "1":
+				commitChoice, _, err := prompt.Run()
+				if err != nil {
+					fmt.Printf("Error with prompt: %v\n", err)
+					os.Exit(1)
+				}
+
+				switch commitChoice {
+				case 0:
 					cmd := exec.Command("git", "commit", "-m", commitMessage)
 					if err := cmd.Run(); err != nil {
 						fmt.Printf("Error committing changes: %v\n", err)
@@ -208,11 +218,19 @@ func main() {
 					}
 					color.Green("\n✅ Successfully committed changes!")
 
-					fmt.Print("Would you like to push these changes to the remote repository? (y/N): ")
-					var pushChoice string
-					fmt.Scanln(&pushChoice)
+					pushPrompt := promptui.Select{
+						Label: "Would you like to push these changes to the remote repository?",
+						Items: []string{"No", "Yes"},
+						Size:  2,
+					}
 
-					if strings.ToLower(pushChoice) == "y" || strings.ToLower(pushChoice) == "yes" {
+					_, pushChoice, err := pushPrompt.Run()
+					if err != nil {
+						fmt.Printf("Error with prompt: %v\n", err)
+						os.Exit(1)
+					}
+
+					if pushChoice == "Yes" {
 						cmd := exec.Command("git", "push")
 						if err := cmd.Run(); err != nil {
 							color.Red("Error pushing changes: %v", err)
@@ -223,7 +241,7 @@ func main() {
 						color.Yellow("Changes committed locally. Remember to push when ready.")
 					}
 					return
-				case "2":
+				case 1:
 					fmt.Println("\n🤖 Regenerating commit message...")
 					commitMessage, err = generateMessage(config, diffOutput)
 					if err != nil {
@@ -232,7 +250,7 @@ func main() {
 					}
 					continue
 				default:
-					color.Red("Invalid choice. Please enter 1 or 2.")
+					color.Red("Invalid choice")
 				}
 			}
 		},
