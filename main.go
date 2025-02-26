@@ -232,10 +232,12 @@ func main() {
 
 					if pushChoice == "Yes" {
 						cmd := exec.Command("git", "push")
-						if err := cmd.Run(); err != nil {
-							color.Red("Error pushing changes: %v", err)
+						output, err := cmd.CombinedOutput()
+						if err != nil {
+							color.Red("Error pushing changes: %v\n%s", err, output)
 							os.Exit(1)
 						}
+						fmt.Printf("%s", output)
 						color.Green("✅ Successfully pushed changes to remote repository!")
 					} else {
 						color.Yellow("Changes committed locally. Remember to push when ready.")
