@@ -180,8 +180,15 @@ func main() {
 				os.Exit(1)
 			}
 
+			var provider string
+			if config.CurrentProvider == "" {
+				provider = llm.ProviderDoubao
+			} else {
+				provider = config.CurrentProvider
+			}
+
 			// First message generation
-			fmt.Println("\n🤖 Generating commit message by", config.CurrentProvider)
+			fmt.Println("\n🤖 Generating commit message by", provider)
 			var commitMessage string
 			commitMessage, err = generateMessage(config, diffOutput)
 			if err != nil {

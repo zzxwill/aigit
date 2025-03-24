@@ -182,5 +182,5 @@ func GenerateDeepseekCommitMessage(diff, apiKey string) (string, error) {
 		}
 	}
 
-	return "", fmt.Errorf("invalid response format from Deepseek")
+	return "", fmt.Errorf("invalid response format from Deepseek: %v", result)
 }
