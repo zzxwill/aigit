@@ -4,7 +4,7 @@
 
 最强大的 Git 提交助手！
 
-## 支持的 🤖 AI 提供商
+## 支持的大模型/AI
 
 - [OpenAI](https://openai.com/)
 - [DeepSeek](https://deepseek.com/)
