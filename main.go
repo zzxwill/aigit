@@ -53,9 +53,9 @@ func main() {
 	}
 
 	var authAddCmd = &cobra.Command{
-		Use:                   "add [provider] [api_key]",
+		Use:                   "add <provider> <api_key> [endpoint_id]",
 		Short:                 "Add or update API key for a provider",
-		Long:                  "Add or update API key for a provider. Supported providers: openai, gemini, doubao, deepseek",
+		Long:                  "Add or update API key for a provider. Supported providers: openai, gemini, doubao, deepseek. endpoint_id is required for Doubao provider",
 		DisableFlagsInUseLine: true,
 		Run: func(cmd *cobra.Command, args []string) {
 			if len(args) < 2 {
