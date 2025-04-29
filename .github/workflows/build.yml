@@ -26,6 +26,10 @@ jobs:
         with:
           go-version: '1.23'
 
+      - name: Get version from tag
+        id: get_version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
+
       - name: Build Binary
         env:
           GOOS: ${{ matrix.os }}
@@ -35,7 +39,7 @@ jobs:
           if [ "${{ matrix.os }}" == "windows" ]; then
             BINARY_NAME+=".exe"
           fi
-          go build -ldflags="-s -w" -o $BINARY_NAME main.go
+          go build -ldflags "-s -w -X main.Version=${VERSION}" -o $BINARY_NAME main.go
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
