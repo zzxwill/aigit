@@ -267,6 +267,27 @@ func main() {
 
 	rootCmd.AddCommand(commitCmd)
 
+	var versionCmd = &cobra.Command{
+		Use:     "version",
+		Aliases: []string{"v", "-v", "-version", "--version"},
+		Short:   "Print the version of aigit",
+		Long:    "Print the current version of the aigit CLI tool.",
+		Run: func(cmd *cobra.Command, args []string) {
+			if Version == "dev" {
+				version, err := exec.Command("git", "describe", "--tags").Output()
+				if err != nil {
+					fmt.Printf("Error retrieving version: %v\n", err)
+					os.Exit(1)
+				}
+				fmt.Printf("%s\n", strings.TrimSpace(string(version)))
+			} else {
+				fmt.Printf("%s\n", Version)
+			}
+		},
+	}
+
+	rootCmd.AddCommand(versionCmd)
+
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Println(err)
 		os.Exit(1)
