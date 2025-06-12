@@ -13,7 +13,15 @@
 
 ## 快速开始
 
-### 下载二进制文件
+### 安装
+
+#### 选项 1：Homebrew（推荐）
+
+```shell
+brew install https://raw.githubusercontent.com/zzxwill/aigit/master/Formula/aigit.rb
+```
+
+#### 选项 2：下载二进制文件
 
 - 前往 [发布页面](https://github.com/zzxwill/aigit/releases) 下载适合您平台的二进制文件。
 
@@ -21,6 +29,15 @@
 
 ```shell
 chmod +x aigit && sudo mv aigit /usr/local/bin/aigit
+```
+
+#### 选项 3：从源码构建
+
+```shell
+git clone https://github.com/zzxwill/aigit.git
+cd aigit
+go build -o aigit main.go
+sudo mv aigit /usr/local/bin/aigit
 ```
 
 ### 生成提交信息
