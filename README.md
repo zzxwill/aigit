@@ -22,7 +22,18 @@ It's a command-line tool that streamlines the git commit process by automaticall
 #### Option 1: Homebrew (Recommended)
 
 ```shell
-brew install https://raw.githubusercontent.com/zzxwill/aigit/master/Formula/aigit.rb
+# Add the repository as a tap (use full URL)
+brew tap zzxwill/aigit https://github.com/zzxwill/aigit.git
+
+# Install stable version (from releases)
+brew install aigit
+
+# Install development version (from dev branch)
+brew install --HEAD aigit
+
+# Alternative: Install from local formula file
+# curl -O https://raw.githubusercontent.com/zzxwill/aigit/master/Formula/aigit.rb
+# brew install --formula aigit.rb
 ```
 
 #### Option 2: Download Binary
