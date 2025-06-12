@@ -34,17 +34,31 @@ const (
 	DefaultEndpoint = "ZXAtMjAyNTAxMTMyMzE5NTEtOTJ4bjI="
 )
 
-const llmPrompt = `Generate a concise and informative Git commit message based on the following code diff.
+const llmPrompt = `Generate a Git commit message following Conventional Commits v1.0.0: <type>(<scope>): <description>
 
-The commit message should follow these rules:
-1. Follow the Conventional Commits format: <type>(<scope>): <description>
-2. The body should be one paragraph
-3. The body should explain WHAT and WHY (not HOW)
-4. Each line should be less than 72 characters
-5. There should be a line break between the title and the body
-6. Disable markdown formatting
+## Type Selection (by priority):
+**BREAKING CHANGE**: Add ! after type or BREAKING CHANGE: in footer for API changes
+**fix**: Bug fixes, crashes, errors, security issues
+**feat**: New features, APIs, capabilities
+**perf**: Performance improvements
+**refactor**: Code restructuring without functional changes
+**docs**: Documentation only
+**style**: Formatting, whitespace, imports
+**test**: Test changes
+**build**: Build system, dependencies
+**ci**: CI/CD changes
+**chore**: Maintenance, version updates
 
-Here's the diff:`
+## Rules:
+1. Choose most significant change type
+2. Priority: BREAKING CHANGE > fix > feat > others
+3. When uncertain: fix over feat
+4. Description: lowercase, present tense, no period
+5. Body: explain WHAT/WHY in one paragraph if needed
+
+OUTPUT FORMAT: Return only the commit message, no explanations, no markdown formatting, no additional text.
+
+Diff:`
 
 func GenerateGeminiCommitMessage(diff, apiKey string) (string, error) {
 	ctx := context.Background()
@@ -109,7 +123,7 @@ func GenerateDoubaoCommitMessage(diff, apiKey string, endpointId string) (string
 			{
 				Role: model.ChatMessageRoleSystem,
 				Content: &model.ChatCompletionMessageContent{
-					StringValue: volcengine.String("你是豆包，是由字节跳动开发的 AI 人工智能助手, 你非常擅长生成 git commit message"),
+					StringValue: volcengine.String("你是豆包，是由字节跳动开发的 AI 人工智能助手，你非常擅长生成 git commit message"),
 				},
 			},
 			{
