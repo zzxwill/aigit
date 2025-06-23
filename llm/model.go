@@ -57,6 +57,8 @@ The commit message should follow these rules:
 5. There should be a line break between the title and the body
 6. Disable markdown formatting
 
+IMPORTANT: Only output the commit message itself, no additional explanation, no template description, no prefatory text. Just the commit message in the format specified.
+
 Here's the diff:`
 
 func GenerateGeminiCommitMessage(diff, apiKey string) (string, error) {

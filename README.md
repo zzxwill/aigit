@@ -17,7 +17,26 @@ It's a command-line tool that streamlines the git commit process by automaticall
 
 ## Getting Started
 
-### Download the binary
+### Installation
+
+#### Option 1: Homebrew (Recommended)
+
+```shell
+# Add the repository as a tap (use full URL)
+brew tap zzxwill/aigit https://github.com/zzxwill/aigit.git
+
+# Install stable version (from releases)
+brew install aigit
+
+# Install development version (from dev branch)
+brew install --HEAD aigit
+
+# Alternative: Install from local formula file
+# curl -O https://raw.githubusercontent.com/zzxwill/aigit/master/Formula/aigit.rb
+# brew install --formula aigit.rb
+```
+
+#### Option 2: Download Binary
 
 You can install aigit in one of the following ways:
 
@@ -39,6 +58,15 @@ v0.0.8
 
 ```shell
 chmod +x aigit && sudo mv aigit /usr/local/bin/aigit
+```
+
+#### Option 3: Build from Source
+
+```shell
+git clone https://github.com/zzxwill/aigit.git
+cd aigit
+go build -o aigit main.go
+sudo mv aigit /usr/local/bin/aigit
 ```
 
 ### Generate commit message

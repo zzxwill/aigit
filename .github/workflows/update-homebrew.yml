@@ -1,0 +1,89 @@
+name: Update Homebrew Formula
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  update-homebrew:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Get release info
+        id: release
+        run: |
+          VERSION=${{ github.event.release.tag_name }}
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+          # Download and calculate SHA256
+          TARBALL_URL="https://github.com/${{ github.repository }}/archive/refs/tags/$VERSION.tar.gz"
+          SHA256=$(curl -sL "$TARBALL_URL" | sha256sum | cut -d' ' -f1)
+          echo "sha256=$SHA256" >> $GITHUB_OUTPUT
+
+      - name: Update Formula
+        run: |
+          VERSION=${{ steps.release.outputs.version }}
+          SHA256=${{ steps.release.outputs.sha256 }}
+
+          mkdir -p Formula
+
+          cat > Formula/aigit.rb << EOF
+          class Aigit < Formula
+            desc "AI-powered Git commit message generator using LLM"
+            homepage "https://github.com/${{ github.repository }}"
+            url "https://github.com/${{ github.repository }}/archive/refs/tags/$VERSION.tar.gz"
+            sha256 "$SHA256"
+            license "Apache-2.0"
+            head "https://github.com/${{ github.repository }}.git", branch: "master"
+
+            depends_on "go" => :build
+
+            def install
+              ldflags = %W[
+                -s -w
+                -X main.Version=#{version}
+              ]
+
+              system "go", "build", *std_go_args(ldflags: ldflags), "./main.go"
+            end
+
+            test do
+              assert_match version.to_s, shell_output("#{bin}/aigit version")
+              assert_match "Generate git commit message", shell_output("#{bin}/aigit help")
+            end
+
+            def caveats
+              <<~EOS
+                Before using aigit, configure an AI provider:
+                  aigit auth add openai YOUR_API_KEY
+                  aigit auth add gemini YOUR_API_KEY
+                  aigit auth add deepseek YOUR_API_KEY
+                  aigit auth add doubao YOUR_API_KEY YOUR_ENDPOINT_ID
+
+                Then use: aigit commit
+              EOS
+            end
+          end
+          EOF
+
+      - name: Commit and push
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+
+          git add Formula/aigit.rb
+
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "chore: update homebrew formula to ${{ steps.release.outputs.version }}
+
+          - Update formula for version ${{ steps.release.outputs.version }}
+          - SHA256: ${{ steps.release.outputs.sha256 }}"
+
+            git push
+          fi
