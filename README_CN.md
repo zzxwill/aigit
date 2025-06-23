@@ -15,8 +15,22 @@
 
 ### 下载二进制文件
 
-- 前往 [发布页面](https://github.com/zzxwill/aigit/releases) 下载适合您平台的二进制文件。
+您可以通过以下方式之一安装 aigit：
 
+1. 使用 `go install` (当前版本：v0.0.8)：
+
+```shell
+go install github.com/zzxwill/aigit@latest
+```
+
+```shell
+$ aigit version
+v0.0.8
+```
+
+2. 从发布页面下载：
+
+- 前往 [发布页面](https://github.com/zzxwill/aigit/releases) 下载适合您平台的二进制文件。
 - 将二进制文件重命名为 `aigit` 并移动到 `/usr/local/bin/aigit`。
 
 ```shell
@@ -117,5 +131,3 @@ The following changes were made:
 Enter your choice (press Enter for default): 1
 
 ✅ Successfully committed changes!
-
-```

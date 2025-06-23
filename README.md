@@ -19,8 +19,22 @@ It's a command-line tool that streamlines the git commit process by automaticall
 
 ### Download the binary
 
-- Go to the [releases page](https://github.com/zzxwill/aigit/releases) and download the binary for your platform.
+You can install aigit in one of the following ways:
 
+1. Using `go install`:
+
+```shell
+go install github.com/zzxwill/aigit@latest
+```
+
+```shell
+$ aigit version
+v0.0.8
+```
+
+2. Download from releases:
+
+- Go to the [releases page](https://github.com/zzxwill/aigit/releases) and download the binary for your platform.
 - Rename the binary to `aigit` and move it to `/usr/local/bin/aigit`.
 
 ```shell
